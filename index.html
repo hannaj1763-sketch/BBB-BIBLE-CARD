@@ -10,7 +10,7 @@
     <style>
         :root {
             --bg-color: #0d1117;
-            --card-bg: rgba(22, 27, 34, 0.92);
+            --card-bg: rgba(22, 27, 34, 0.94);
             --card-border: rgba(205, 162, 110, 0.4);
             --accent-gold: #cda26e;
             --accent-gold-light: #e6c294;
@@ -141,6 +141,7 @@
             position: relative;
             cursor: grab;
             touch-action: none;
+            overflow: hidden;
         }
 
         #stage-container:active {
@@ -162,13 +163,13 @@
             top: 50%;
             transform: translateY(-50%);
             z-index: 60;
-            width: 54px;
-            height: 54px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background: rgba(22, 27, 34, 0.85);
+            background: rgba(22, 27, 34, 0.88);
             border: 1.5px solid rgba(205, 162, 110, 0.55);
             color: var(--accent-gold);
-            font-size: 1.45rem;
+            font-size: 1.35rem;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -190,8 +191,8 @@
             cursor: not-allowed;
         }
 
-        .side-nav-btn.prev { left: 22px; }
-        .side-nav-btn.next { right: 22px; }
+        .side-nav-btn.prev { left: 20px; }
+        .side-nav-btn.next { right: 20px; }
 
         .verse-card {
             position: absolute;
@@ -209,6 +210,20 @@
             cursor: pointer;
             transition: border-color 0.3s, box-shadow 0.3s;
             backface-visibility: hidden;
+        }
+
+        /* 세로 스택 모드(5확신/8지침/60구절) */
+        .carousel-3d.vertical-stack {
+            transform-style: flat;
+        }
+        .carousel-3d.vertical-stack .verse-card {
+            width: min(86vw, 340px);
+            height: min(56vh, 400px);
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, border-color 0.3s, box-shadow 0.3s;
+            backface-visibility: visible;
+        }
+        .carousel-3d.vertical-stack.dragging .verse-card {
+            transition: none;
         }
 
         .verse-card:hover {
@@ -247,14 +262,14 @@
         }
 
         footer {
-            padding: 18px 20px;
+            padding: 16px 20px;
             text-align: center;
             z-index: 20;
             background: linear-gradient(to top, rgba(13,17,23,0.95), transparent);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         #card-counter {
@@ -269,7 +284,6 @@
             color: var(--text-sub);
         }
 
-        /* 일반 카드 클릭 시 상세 모달 */
         #modal {
             position: fixed;
             inset: 0;
@@ -284,12 +298,12 @@
         .modal-content {
             width: 90%;
             max-width: 460px;
-            min-height: 480px;
+            min-height: 460px;
             max-height: 85vh;
             background: #161b22;
             border: 2px solid var(--accent-gold);
             border-radius: 22px;
-            padding: 36px;
+            padding: 32px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -313,9 +327,6 @@
         }
         .close-btn:hover { color: var(--accent-gold); }
 
-        /* =========================================================
-           ✨ 화려한 3D 룰렛 스핀 & 아트 카드 리빌
-           ========================================================= */
         #wcSpin {
             position: fixed;
             inset: 0;
@@ -495,7 +506,6 @@
             z-index: 162;
         }
 
-        /* 뽑힌 말씀 감성 카드 결과 모달 */
         #wcResultModal {
             position: fixed;
             inset: 0;
@@ -620,9 +630,6 @@
             border-color: var(--accent-gold);
         }
 
-        /* =========================================================
-           오늘의 모임 스타일
-           ========================================================= */
         #meeting-view {
             display: block;
             position: fixed;
@@ -1190,7 +1197,6 @@
         <div class="guide-text" id="gallery-guide-text">좌우로 밀어서 카드를 돌리거나 '오늘의 말씀 뽑기'를 눌러보세요.</div>
     </footer>
 
-    <!-- 일반 갤러리 카드 클릭 시 상세 보기 모달 -->
     <div id="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="close-btn" onclick="closeModal()">&times;</button>
@@ -1203,7 +1209,6 @@
         </div>
     </div>
 
-    <!-- ✨ 화려한 3D 룰렛 스핀 오버레이 -->
     <div id="wcSpin">
         <canvas id="confettiCanvas"></canvas>
         <div class="sp-cat-bar" id="spCatBar"></div>
@@ -1217,7 +1222,6 @@
         <div class="sp-skip" id="wcSpinSkipText" onclick="handleSkipClick()">화면을 누르면 바로 볼 수 있어요</div>
     </div>
 
-    <!-- 🎨 고해상도(1080×1350) 말씀 아트 카드 결과 모달 -->
     <div id="wcResultModal" onclick="if (event.target === this) closeWcResult()">
         <div class="wc-result-box">
             <img id="wcImg" class="wc-card-img" src="" alt="오늘의 말씀 카드">
@@ -1238,7 +1242,6 @@
         </div>
     </div>
 
-    <!-- 📖 오늘의 모임 뷰 -->
     <div id="meeting-view">
         <div class="meeting-container">
             <div id="meeting-editor" class="meeting-card">
@@ -1356,10 +1359,10 @@
         ];
 
         let currentData = [...rawData];
-        let currentCategory = 'all';
-        let carouselMode = 'horizontal'; // 'horizontal' (전체: 좌우) | 'vertical' (5확신/8지침/60구절: 아래->위)
+        let carouselMode = 'horizontal';
         let currentIndex = 0;
         let currentAngle = 0;
+        let stackOffsetPx = 0;
         let dragMoved = false;
         let isSpinning = false;
         let isHoveringStage = false;
@@ -1385,13 +1388,12 @@
         function renderCarousel() {
             carousel.innerHTML = '';
             const total = currentData.length;
-            const theta = 360 / total;
             const isMobile = window.innerWidth <= 768;
 
             if (carouselMode === 'vertical') {
-                // 아래에서 위로 돌아가는 세로 3D 원통 배치
-                const cardH = isMobile ? 330 : 410;
-                const dynamicRadius = Math.max(isMobile ? 270 : 340, Math.round((cardH * total) / (2 * Math.PI)));
+                carousel.classList.add('vertical-stack');
+                carousel.style.transform = 'none';
+                stackOffsetPx = 0;
 
                 currentData.forEach((item, index) => {
                     const card = document.createElement('div');
@@ -1404,22 +1406,27 @@
                         <div class="card-body">${item.verse.replace(/\n/g, '<br>')}</div>
                         <div class="card-footer">${item.reference}</div>
                     `;
-
-                    // 아래에서 위로(bottom -> top) 올라오도록 음수 각도 배치
-                    const cardAngle = -theta * index;
-                    card.style.transform = `rotateX(${cardAngle}deg) translateZ(${dynamicRadius}px)`;
-                    
                     card.onclick = () => {
-                        if (!dragMoved && !isSpinning) openModal(item);
+                        if (!dragMoved && !isSpinning) {
+                            if (index === currentIndex) {
+                                openModal(item);
+                            } else {
+                                currentIndex = index;
+                                stackOffsetPx = 0;
+                                updateVerticalStack();
+                            }
+                        }
                     };
                     carousel.appendChild(card);
                 });
 
                 if (guideTextEl) guideTextEl.innerText = '아래에서 위로 쓸어 올리며 말씀을 넘겨보세요.';
-                prevBtnEl.innerHTML = '&#9650;'; // ▲
-                nextBtnEl.innerHTML = '&#9660;'; // ▼
+                prevBtnEl.innerHTML = '&#9650;';
+                nextBtnEl.innerHTML = '&#9660;';
+                updateVerticalStack();
             } else {
-                // '전체' 탭: 좌우로 360도 돌아가는 수평 원형 배치
+                carousel.classList.remove('vertical-stack');
+                const theta = 360 / total;
                 const cardSpace = isMobile ? 235 : 305;
                 const dynamicRadius = Math.max(isMobile ? 280 : 430, Math.round((cardSpace * total) / (2 * Math.PI)));
 
@@ -1444,39 +1451,77 @@
                     carousel.appendChild(card);
                 });
 
-                if (guideTextEl) guideTextEl.innerText = '좌우로 밀어서 카드를 돌리거나 '오늘의 말씀 뽑기'를 눌러보세요.';
-                prevBtnEl.innerHTML = '&#10094;'; // ❮
-                nextBtnEl.innerHTML = '&#10095;'; // ❯
+                if (guideTextEl) guideTextEl.innerText = '좌우로 밀어서 카드를 돌리거나 \'오늘의 말씀 뽑기\'를 눌러보세요.';
+                prevBtnEl.innerHTML = '&#10094;';
+                nextBtnEl.innerHTML = '&#10095;';
+                updateTransform();
             }
-            updateTransform();
+        }
+
+        function updateVerticalStack() {
+            const cards = carousel.querySelectorAll('.verse-card');
+            const total = cards.length;
+            if (total === 0) return;
+
+            const isMobile = window.innerWidth <= 768;
+            const gapY = isMobile ? 290 : 360;
+            const dragShift = stackOffsetPx;
+
+            cards.forEach((card, idx) => {
+                let diff = idx - currentIndex;
+                if (diff > total / 2) diff -= total;
+                if (diff < -total / 2) diff += total;
+
+                const pos = diff + (dragShift / gapY);
+                const absPos = Math.abs(pos);
+
+                if (absPos > 2.2) {
+                    card.style.opacity = '0';
+                    card.style.pointerEvents = 'none';
+                    card.style.transform = `translate3d(0, ${pos * gapY}px, -200px) scale(0.8)`;
+                    card.style.zIndex = '1';
+                } else {
+                    const translateY = pos * gapY;
+                    const scale = Math.max(0.84, 1 - absPos * 0.09);
+                    const opacity = Math.max(0, 1 - absPos * 0.48);
+                    const zIndex = Math.round(20 - absPos * 5);
+
+                    card.style.opacity = opacity.toFixed(2);
+                    card.style.pointerEvents = absPos < 0.6 ? 'auto' : 'none';
+                    card.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+                    card.style.zIndex = String(zIndex);
+                    card.style.borderColor = absPos < 0.3 ? 'var(--accent-gold)' : 'var(--card-border)';
+                }
+            });
+
+            counter.innerText = `${currentIndex + 1} / ${total}`;
         }
 
         function updateTransform() {
             const total = currentData.length;
-            const stepAngle = 360 / total;
             if (carouselMode === 'vertical') {
-                // currentAngle이 양수(+)로 증가할수록 아래 카드가 위로 올라옴
-                carousel.style.transform = `rotateX(${currentAngle}deg)`;
-                const activeIdx = Math.round(currentAngle / stepAngle) % total;
-                currentIndex = (activeIdx + total) % total;
-            } else {
-                carousel.style.transform = `rotateY(${currentAngle}deg)`;
-                const activeIdx = Math.round(-currentAngle / stepAngle) % total;
-                currentIndex = (activeIdx + total) % total;
+                updateVerticalStack();
+                return;
             }
+            const stepAngle = 360 / total;
+            carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            const activeIdx = Math.round(-currentAngle / stepAngle) % total;
+            currentIndex = (activeIdx + total) % total;
             counter.innerText = `${currentIndex + 1} / ${total}`;
         }
 
         function rotateCarousel(direction) {
             if (isSpinning) return;
             const total = currentData.length;
+            if (carouselMode === 'vertical') {
+                stackOffsetPx = 0;
+                currentIndex = (currentIndex + direction + total) % total;
+                updateVerticalStack();
+                return;
+            }
             const theta = 360 / total;
             carousel.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
-            if (carouselMode === 'vertical') {
-                currentAngle += direction * theta;
-            } else {
-                currentAngle -= direction * theta;
-            }
+            currentAngle -= direction * theta;
             updateTransform();
         }
 
@@ -1487,7 +1532,6 @@
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             if (btnElement) btnElement.classList.add('active');
 
-            currentCategory = cat;
             if (cat === 'all') {
                 currentData = [...rawData];
                 carouselMode = 'horizontal';
@@ -1495,7 +1539,9 @@
                 currentData = rawData.filter(item => item.category === cat);
                 carouselMode = 'vertical';
             }
+            currentIndex = 0;
             currentAngle = 0;
+            stackOffsetPx = 0;
             carousel.style.transition = 'transform 0.35s ease';
             renderCarousel();
         }
@@ -1514,7 +1560,11 @@
             dragMoved = false;
             startX = e.clientX;
             startY = e.clientY;
-            carousel.style.transition = 'none';
+            if (carouselMode === 'vertical') {
+                carousel.classList.add('dragging');
+            } else {
+                carousel.style.transition = 'none';
+            }
         });
 
         window.addEventListener('mousemove', (e) => {
@@ -1522,20 +1572,32 @@
             const deltaX = e.clientX - startX;
             const deltaY = e.clientY - startY;
             if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) dragMoved = true;
-            startX = e.clientX;
-            startY = e.clientY;
 
             if (carouselMode === 'vertical') {
-                // 위로 드래그(deltaY < 0)하면 아래 카드가 위로 올라옴(+각도)
-                currentAngle -= deltaY * 0.45;
+                stackOffsetPx += deltaY;
+                startY = e.clientY;
+                updateVerticalStack();
             } else {
+                startX = e.clientX;
                 currentAngle += deltaX * 0.4;
+                updateTransform();
             }
-            updateTransform();
         });
 
         window.addEventListener('mouseup', () => {
+            if (!isDragging) return;
             isDragging = false;
+            if (carouselMode === 'vertical') {
+                carousel.classList.remove('dragging');
+                const total = currentData.length;
+                if (stackOffsetPx < -45) {
+                    currentIndex = (currentIndex + 1) % total;
+                } else if (stackOffsetPx > 45) {
+                    currentIndex = (currentIndex - 1 + total) % total;
+                }
+                stackOffsetPx = 0;
+                updateVerticalStack();
+            }
             setTimeout(() => { dragMoved = false; }, 50);
         });
 
@@ -1545,7 +1607,11 @@
             dragMoved = false;
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
-            carousel.style.transition = 'none';
+            if (carouselMode === 'vertical') {
+                carousel.classList.add('dragging');
+            } else {
+                carousel.style.transition = 'none';
+            }
         }, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
@@ -1553,33 +1619,49 @@
             const deltaX = e.touches[0].clientX - startX;
             const deltaY = e.touches[0].clientY - startY;
             if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) dragMoved = true;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
 
             if (carouselMode === 'vertical') {
-                // 손가락을 아래에서 위로 쓸어 올리면(deltaY < 0) 다음 카드가 올라옴
-                currentAngle -= deltaY * 0.5;
+                stackOffsetPx += deltaY;
+                startY = e.touches[0].clientY;
+                updateVerticalStack();
             } else {
+                startX = e.touches[0].clientX;
                 currentAngle += deltaX * 0.45;
+                updateTransform();
             }
-            updateTransform();
         }, { passive: true });
 
         window.addEventListener('touchend', () => {
+            if (!isDragging) return;
             isDragging = false;
+            if (carouselMode === 'vertical') {
+                carousel.classList.remove('dragging');
+                const total = currentData.length;
+                if (stackOffsetPx < -40) {
+                    currentIndex = (currentIndex + 1) % total;
+                } else if (stackOffsetPx > 40) {
+                    currentIndex = (currentIndex - 1 + total) % total;
+                }
+                stackOffsetPx = 0;
+                updateVerticalStack();
+            }
             setTimeout(() => { dragMoved = false; }, 50);
         });
 
+        let wheelLock = 0;
         stage.addEventListener('wheel', (e) => {
             if (isSpinning || isMeetingOpen()) return;
             e.preventDefault();
-            carousel.style.transition = 'transform 0.1s ease-out';
             if (carouselMode === 'vertical') {
-                currentAngle += e.deltaY * 0.22;
+                const now = Date.now();
+                if (now - wheelLock < 260) return;
+                wheelLock = now;
+                rotateCarousel(e.deltaY > 0 ? 1 : -1);
             } else {
+                carousel.style.transition = 'transform 0.1s ease-out';
                 currentAngle += e.deltaY * 0.2;
+                updateTransform();
             }
-            updateTransform();
         }, { passive: false });
 
         window.addEventListener('keydown', (e) => {
@@ -1600,8 +1682,8 @@
                 return;
             }
             if (carouselMode === 'vertical') {
-                if (e.key === 'ArrowUp') rotateCarousel(1);
-                if (e.key === 'ArrowDown') rotateCarousel(-1);
+                if (e.key === 'ArrowUp') rotateCarousel(-1);
+                if (e.key === 'ArrowDown') rotateCarousel(1);
             } else {
                 if (e.key === 'ArrowLeft') rotateCarousel(-1);
                 if (e.key === 'ArrowRight') rotateCarousel(1);
@@ -1610,14 +1692,9 @@
         });
 
         function animateCarousel() {
-            if (!isMeetingOpen() && !isDragging && !isSpinning && !isHoveringStage && document.getElementById('modal').style.display !== 'flex') {
+            if (carouselMode === 'horizontal' && !isMeetingOpen() && !isDragging && !isSpinning && !isHoveringStage && document.getElementById('modal').style.display !== 'flex') {
                 carousel.style.transition = 'none';
-                if (carouselMode === 'vertical') {
-                    // 아래에서 위로 천천히 자동 상승 회전
-                    currentAngle += 0.14;
-                } else {
-                    currentAngle -= 0.12;
-                }
+                currentAngle -= 0.12;
                 updateTransform();
             }
             requestAnimationFrame(animateCarousel);
