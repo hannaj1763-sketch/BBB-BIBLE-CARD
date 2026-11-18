@@ -937,7 +937,7 @@
             selectedMeetingItem = item;
 
             document.getElementById('meeting-ref-input').value = `${item.title} (${item.reference})`;
-            document.getElementById('meeting-text-input').value = item.verse.replace(/\n/g, '\n');
+            document.getElementById('meeting-text-input').value = item.verse;
         }
 
         function initMeetingData() {
@@ -948,7 +948,7 @@
 
             let data = {
                 ref: "구원의 확신 (요한일서 5:11-12)",
-                text: rawData[0].verse.replace(/\n/g, '\n'),
+                text: rawData[0].verse,
                 memo: "오늘 모임 나눔: 영생의 확신과 그 은혜에 대해 서로 나눠봅시다."
             };
 
@@ -998,8 +998,7 @@
             container.innerHTML = '';
             highlightedLineIndex = 0;
 
-            const lines = data.text.split(/\n|
-/).map(l => l.trim()).filter(l => l.length > 0);
+            const lines = data.text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
             lines.forEach((line, idx) => {
                 const div = document.createElement('div');
                 div.className = 'verse-line' + (idx === 0 ? ' active-line' : '');
