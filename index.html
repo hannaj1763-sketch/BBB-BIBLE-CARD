@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBB 주제별 성경암송 3D 갤러리</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: rgba(22, 27, 34, 0.85);
+            --card-border: rgba(205, 162, 110, 0.4);
+            --accent-gold: #cda26e;
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        header {
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(13,17,23,0.9), transparent);
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-sub);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* 3D 스테이지 영역 */
+        #stage-container {
+            flex: 1;
+            perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: grab;
+        }
+
+        #stage-container:active {
+            cursor: grabbing;
+        }
+
+        .carousel-3d {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* 카드 디자인 */
+        .verse-card {
+            position: absolute;
+            width: 280px;
+            height: 380px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            backface-visibility: hidden;
+        }
+
+        .verse-card:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 20px 40px rgba(205,162,110,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(205,162,110,0.2);
+            padding-bottom: 8px;
+        }
+
+        .card-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            word-break: keep-all;
+            white-space: pre-line;
+            overflow-y: auto;
+            margin: 15px 0;
+            flex: 1;
+        }
+
+        .card-footer {
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: right;
+            color: var(--accent-gold);
+        }
+
+        /* 하단 컨트롤러 */
+        footer {
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+            background: linear-gradient(to top, rgba(13,17,23,0.9), transparent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        .guide-text {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        /* 모달 팝업 (크게 보기) */
+        #modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 450px;
+            height: 520px;
+            background: #161b22;
+            border: 2px solid var(--accent-gold);
+            border-radius: 20px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            background: none; border: none;
+            color: var(--text-sub);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .close-btn:hover { color: var(--accent-gold); }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .verse-card { width: 240px; height: 330px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>BBB 3D Scripture Gallery</h1>
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterCategory('all')">전체</button>
+            <button class="filter-btn" onclick="filterCategory('5확신')">5확신</button>
+            <button class="filter-btn" onclick="filterCategory('8지침')">8지침</button>
+            <button class="filter-btn" onclick="filterCategory('60구절')">60구절</button>
+        </div>
+    </header>
+
+    <div id="stage-container">
+        <div class="carousel-3d" id="carousel"></div>
+    </div>
+
+    <footer>
+        <div class="controls">
+            <button class="nav-btn" onclick="rotateCarousel(-1)">&#10094;</button>
+            <span id="card-counter" style="font-size: 0.9rem; color: var(--text-sub);">1 / 15</span>
+            <button class="nav-btn" onclick="rotateCarousel(1)">&#10095;</button>
+        </div>
+        <div class="guide-text">마우스로 좌우 드래그하거나 휠을 돌려 3D 카드를 탐색하세요. 카드를 클릭하면 크게 볼 수 있습니다.</div>
+    </footer>
+
+    <!-- 상세 보기 모달 -->
+    <div id="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div id="modal-header" class="card-header"></div>
+            <div id="modal-body" class="card-body" style="font-size: 1.1rem; line-height: 1.8;"></div>
+            <div id="modal-footer" class="card-footer" style="font-size: 1.1rem;"></div>
+        </div>
+    </div>
+
+    <script>
+        // BBB 암송 핸드북 핵심 로우 데이터
+        const rawData = [
+            // 5확신
+            { id: 1, category: "5확신", title: "구원의 확신", reference: "요한일서 5:11-12", verse: "또 증거는 이것이니\n하나님이 우리에게 영생을 주신 것과\n이 생명이 그의 아들 안에 있는 그것이니라\n아들이 있는 자에게는 생명이 있고\n하나님의 아들이 없는 자에게는 생명이 없느니라" },
+            { id: 2, category: "5확신", title: "기도응답의 확신", reference: "요한복음 16:24", verse: "지금까지는 너희가 내 이름으로 아무 것도 구하지 아니하였으나\n구하라 그리하면 받으리니\n너희 기쁨이 충만하리라" },
+            { id: 3, category: "5확신", title: "승리의 확신", reference: "고린도전서 10:13", verse: "사람이 감당할 시험 밖에는\n너희가 당한 것이 없나니\n오직 하나님은 미쁘사\n너희가 감당하지 못할 시험 당함을 허락하지 아니하시고\n시험 당할 즈음에 또한 피할 길을 내사\n너희로 능히 감당하게 하시느니라" },
+            { id: 4, category: "5확신", title: "사죄의 확신", reference: "요한일서 1:9", verse: "만일 우리가 우리 죄를 자백하면\n그는 미쁘시고 의로우사\n우리 죄를 사하시며\n우리를 모든 불의에서 깨끗하게 하실 것이요" },
+            { id: 5, category: "5확신", title: "인도의 확신", reference: "잠언 3:5-6", verse: "너는 마음을 다하여 여호와를 신뢰하고\n네 명철을 의지하지 말라\n너는 범사에 그를 인정하라\n그리하면 네 길을 지도하시리라" },
+            
+            // 8지침
+            { id: 6, category: "8지침", title: "그리스도 안의 생활", reference: "요한복음 15:5", verse: "나는 포도나무요 너희는 가지라\n그가 내 안에, 내가 그 안에 거하면\n사람이 열매를 많이 맺나니\n나를 떠나서는 너희가 아무 것도 할 수 없음이라" },
+            { id: 7, category: "8지침", title: "말씀에 의한 생활", reference: "사도행전 20:32", verse: "지금 내가 여러분을 주와 및 그 은혜의 말씀에 부탁하노니\n그 말씀이 여러분을 능히 든든히 세우사\n거룩하게 하심을 입은 모든 자 가운데\n기업이 있게 하시리라" },
+            { id: 8, category: "8지침", title: "성령에 의한 생활", reference: "로마서 8:14", verse: "무릇 하나님의 영으로 인도함을 받는 사람은\n곧 하나님의 아들이라" },
+            { id: 9, category: "8지침", title: "믿음에 의한 생활", reference: "고린도후서 5:7", verse: "이는 우리가 믿음으로 행하고\n보는 것으로 행하지 아니함이로라" },
+            { id: 10, category: "8지침", title: "사랑에 의한 생활", reference: "요한일서 4:11", verse: "사랑하는 자들아\n하나님이 이같이 우리를 사랑하셨은즉\n우리도 서로 사랑하는 것이 마땅하도다" },
+
+            // 60구절 (일부 예시)
+            { id: 11, category: "60구절", title: "새로운 삶 : 중심", reference: "고린도후서 5:17", verse: "그런즉 누구든지 그리스도 안에 있으면\n새로운 피조물이라\n이전 것은 지나갔으니\n보라 새것이 되었도다" },
+            { id: 12, category: "60구절", title: "새로운 삶 : 헌신", reference: "갈라디아서 2:20", verse: "내가 그리스도와 함께 십자가에 못 박혔나니\n그런즉 이제는 내가 사는 것이 아니요\n오직 내 안에 그리스도께서 사시는 것이라" },
+            { id: 13, category: "60구절", title: "새로운 삶 : 순종", reference: "로마서 12:1", verse: "그러므로 형제들아 내가 하나님의 모든 자비하심으로 너희를 권하노니\n너희 몸을 하나님이 기뻐하시는 거룩한 산 제물로 드리라\n이는 너희가 드릴 영적 예배니라" },
+            { id: 14, category: "60구절", title: "새로운 삶 : 말씀", reference: "여호수아 1:8", verse: "이 율법책을 네 입에서 떠나지 말게 하며\n주야로 그것을 묵상하여\n그 안에 기록된 대로 다 지켜 행하라\n그리하면 네 길이 평탄하게 될 것이며\n네가 형통하리라" },
+            { id: 15, category: "60구절", title: "새로운 삶 : 기도", reference: "빌립보서 4:6-7", verse: "아무 것도 염려하지 말고\n다만 모든 일에 기도와 간구로,\n너희 구할 것을 감사함으로 하나님께 아뢰라\n그리하면 모든 지각에 뛰어난 하나님의 평강이\n너희 마음과 생각을 지키시리라" }
+        ];
+
+        let currentData = [...rawData];
+        let currentIndex = 0;
+        let angleY = 0;
+        let radius = 420; // 3D 원형 배치 반지름
+
+        const carousel = document.getElementById('carousel');
+        const counter = document.getElementById('card-counter');
+
+        function renderCarousel() {
+            carousel.innerHTML = '';
+            const total = currentData.length;
+            const theta = 360 / total;
+
+            currentData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'verse-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span>${item.category}</span>
+                        <span>${item.title}</span>
+                    </div>
+                    <div class="card-body">${item.verse}</div>
+                    <div class="card-footer">${item.reference}</div>
+                `;
+
+                // 3D 공간 배치 회전각 계산
+                const cardAngle = theta * index;
+                card.style.transform = `rotateY(${cardAngle}deg) translateZ(${radius}px)`;
+                
+                // 클릭 시 모달 열기
+                card.onclick = () => openModal(item);
+                carousel.appendChild(card);
+            });
+            updateTransform();
+        }
+
+        function updateTransform() {
+            carousel.style.transform = `rotateY(${angleY}deg)`;
+            const total = currentData.length;
+            const activeIdx = Math.round((-angleY / (360 / total))) % total;
+            const normalizedIdx = (activeIdx + total) % total;
+            currentIndex = normalizedIdx;
+            counter.innerText = `${currentIndex + 1} / ${total}`;
+        }
+
+        function rotateCarousel(direction) {
+            const total = currentData.length;
+            const theta = 360 / total;
+            angleY -= direction * theta;
+            updateTransform();
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (cat === 'all') {
+                currentData = [...rawData];
+            } else {
+                currentData = rawData.filter(item => item.category === cat);
+            }
+            angleY = 0;
+            renderCarousel();
+        }
+
+        // 마우스 드래그 & 터치 인터랙션
+        let isDragging = false;
+        let startX = 0;
+
+        const stage = document.getElementById('stage-container');
+
+        stage.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            startX = e.clientX;
+            angleY += deltaX * 0.4;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        // 터치 지원 (모바일)
+        stage.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.touches[0].clientX - startX;
+            startX = e.touches[0].clientX;
+            angleY += deltaX * 0.4;
+            updateTransform();
+        });
+
+        window.addEventListener('touchend', () => { isDragging = false; });
+
+        // 마우스 휠 스크롤 지원
+        stage.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            angleY += e.deltaY * 0.2;
+            updateTransform();
+        }, { passive: false });
+
+        // 키보드 방향키 제어
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') rotateCarousel(-1);
+            if (e.key === 'ArrowRight') rotateCarousel(1);
+        });
+
+        // 모달 제어
+        function openModal(item) {
+            document.getElementById('modal-header').innerHTML = `<span>${item.category}</span><span>${item.title}</span>`;
+            document.getElementById('modal-body').innerText = item.verse;
+            document.getElementById('modal-footer').innerText = item.reference;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // 초기 실행
+        renderCarousel();
+    </script>
+</body>
+</html>
