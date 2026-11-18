@@ -16,6 +16,7 @@
             --accent-gold-light: #e6c294;
             --text-main: #f0f6fc;
             --text-sub: #8b949e;
+            --verse-scale: 1;
         }
 
         * {
@@ -39,7 +40,7 @@
         }
 
         header {
-            padding: 14px 22px;
+            padding: 12px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -132,6 +133,43 @@
             cursor: not-allowed;
         }
 
+        /* 어르신용 글자 크기 선택 바 */
+        .font-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(205, 162, 110, 0.35);
+            border-radius: 20px;
+            padding: 3px 6px;
+        }
+        .font-bar-label {
+            font-size: 0.75rem;
+            color: var(--accent-gold-light);
+            font-weight: 700;
+            padding: 0 4px;
+            white-space: nowrap;
+        }
+        .font-size-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 3px 8px;
+            border-radius: 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .font-size-btn:hover {
+            color: var(--text-main);
+        }
+        .font-size-btn.active {
+            background: var(--accent-gold);
+            color: #0d1117;
+        }
+
         #stage-container {
             flex: 1;
             perspective: 1400px;
@@ -201,7 +239,7 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 25px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -212,13 +250,12 @@
             backface-visibility: hidden;
         }
 
-        /* 세로 스택 모드(5확신/8지침/60구절) */
         .carousel-3d.vertical-stack {
             transform-style: flat;
         }
         .carousel-3d.vertical-stack .verse-card {
-            width: min(86vw, 340px);
-            height: min(56vh, 400px);
+            width: min(88vw, 360px);
+            height: min(58vh, 420px);
             transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, border-color 0.3s, box-shadow 0.3s;
             backface-visibility: visible;
         }
@@ -234,28 +271,29 @@
         .card-header {
             display: flex;
             justify-content: space-between;
-            font-size: 0.75rem;
+            font-size: calc(0.75rem * var(--verse-scale));
             color: var(--accent-gold);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(205,162,110,0.2);
             padding-bottom: 8px;
+            gap: 6px;
         }
 
         .card-body {
             font-family: "Gowun Batang", serif;
-            font-size: 1rem;
-            line-height: 1.7;
+            font-size: calc(1rem * var(--verse-scale));
+            line-height: 1.72;
             color: var(--text-main);
             word-break: keep-all;
             white-space: pre-line;
             overflow-y: auto;
-            margin: 15px 0;
+            margin: 14px 0;
             flex: 1;
         }
 
         .card-footer {
-            font-size: 0.9rem;
+            font-size: calc(0.9rem * var(--verse-scale));
             font-weight: bold;
             text-align: right;
             color: var(--accent-gold);
@@ -296,14 +334,14 @@
         }
 
         .modal-content {
-            width: 90%;
-            max-width: 460px;
+            width: 92%;
+            max-width: 480px;
             min-height: 460px;
-            max-height: 85vh;
+            max-height: 86vh;
             background: #161b22;
             border: 2px solid var(--accent-gold);
             border-radius: 22px;
-            padding: 32px;
+            padding: 32px 26px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -684,6 +722,7 @@
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .action-btn {
@@ -967,7 +1006,7 @@
         }
 
         .reader-ref {
-            font-size: 1.25rem;
+            font-size: calc(1.22rem * var(--verse-scale));
             font-weight: 700;
             color: var(--accent-gold);
         }
@@ -976,6 +1015,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            font-size: calc(1.05rem * var(--verse-scale));
         }
 
         .verse-line {
@@ -983,7 +1023,7 @@
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.03);
             border-left: 3px solid transparent;
-            line-height: 1.65;
+            line-height: 1.68;
             word-break: keep-all;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -1017,7 +1057,8 @@
             border-radius: 10px;
             background: rgba(205, 162, 110, 0.08);
             border: 1px dashed rgba(205, 162, 110, 0.4);
-            font-size: 0.88rem;
+            font-size: calc(0.9rem * var(--verse-scale));
+            line-height: 1.55;
             color: var(--accent-gold-light);
             white-space: pre-line;
         }
@@ -1041,9 +1082,26 @@
                 padding: 8px 10px;
                 gap: 6px;
             }
+            .header-title-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 6px;
+            }
             h1 {
-                font-size: 0.96rem;
-                text-align: center;
+                font-size: 0.94rem;
+            }
+            .font-bar {
+                padding: 2px 5px;
+                gap: 2px;
+            }
+            .font-bar-label {
+                font-size: 0.7rem;
+                padding: 0 3px;
+            }
+            .font-size-btn {
+                padding: 2px 6px;
+                font-size: 0.72rem;
             }
             .header-right {
                 justify-content: center;
@@ -1054,16 +1112,16 @@
                 max-width: 100%;
             }
             .filter-btn {
-                padding: 4px 9px;
-                font-size: 0.75rem;
+                padding: 4px 8px;
+                font-size: 0.74rem;
             }
             .meeting-btn {
-                padding: 4px 10px;
-                font-size: 0.75rem;
+                padding: 4px 9px;
+                font-size: 0.74rem;
             }
             .spin-btn {
                 padding: 5px 10px;
-                font-size: 0.75rem;
+                font-size: 0.74rem;
             }
             #meeting-view {
                 top: var(--header-h, 88px);
@@ -1092,20 +1150,20 @@
                 gap: 6px;
             }
             .reader-ref {
-                font-size: 1.05rem;
+                font-size: calc(1.05rem * var(--verse-scale));
             }
             .verse-lines {
                 gap: 6px;
+                font-size: calc(0.95rem * var(--verse-scale));
             }
             .verse-line {
                 padding: 8px 11px;
-                font-size: 0.94rem;
-                line-height: 1.52;
+                line-height: 1.55;
             }
             .meeting-memo-box {
                 margin-top: 10px;
                 padding: 9px 11px;
-                font-size: 0.82rem;
+                font-size: calc(0.84rem * var(--verse-scale));
             }
             .reader-bottom-nav {
                 margin-top: 12px;
@@ -1128,8 +1186,8 @@
                 max-height: 200px;
             }
             .verse-card {
-                width: 220px;
-                height: 310px;
+                width: 225px;
+                height: 315px;
                 padding: 18px;
             }
             .side-nav-btn {
@@ -1172,7 +1230,15 @@
 <body>
 
     <header>
-        <h1>BBB 3D Scripture Gallery</h1>
+        <div class="header-title-row">
+            <h1>BBB 3D Scripture Gallery</h1>
+            <div class="font-bar" role="group" aria-label="글자 크기 선택">
+                <span class="font-bar-label">글자</span>
+                <button class="font-size-btn active" data-scale="1" onclick="setGlobalFontScale(1, this)">보통</button>
+                <button class="font-size-btn" data-scale="1.22" onclick="setGlobalFontScale(1.22, this)">크게</button>
+                <button class="font-size-btn" data-scale="1.45" onclick="setGlobalFontScale(1.45, this)">아주크게</button>
+            </div>
+        </div>
         <div class="header-right">
             <button id="meeting-menu-btn" class="meeting-btn active" onclick="openMeetingView()">📖 오늘의 모임</button>
             <div class="filters">
@@ -1201,10 +1267,10 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="close-btn" onclick="closeModal()">&times;</button>
             <div id="modal-header" class="card-header"></div>
-            <div id="modal-body" class="card-body" style="font-size: 1.15rem; line-height: 1.85;"></div>
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div id="modal-body" class="card-body" style="font-size: calc(1.15rem * var(--verse-scale)); line-height: 1.8;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
                 <button class="action-btn primary" id="modal-make-card-btn">🎨 이 말씀으로 카드 만들기</button>
-                <div id="modal-footer" class="card-footer" style="font-size: 1.1rem;"></div>
+                <div id="modal-footer" class="card-footer" style="font-size: calc(1.05rem * var(--verse-scale));"></div>
             </div>
         </div>
     </div>
@@ -1311,14 +1377,12 @@
                 <div class="reader-header">
                     <div class="reader-ref" id="display-meeting-ref">구원의 확신 (요한일서 5:11-12)</div>
                     <div class="meeting-actions">
-                        <button class="action-btn" onclick="changeFontSize(-0.1)">가-</button>
-                        <button class="action-btn" onclick="changeFontSize(0.1)">가+</button>
                         <button class="action-btn" onclick="moveHighlight(-1)">▲ 이전 줄</button>
                         <button class="action-btn" onclick="moveHighlight(1)">▼ 다음 줄</button>
                     </div>
                 </div>
 
-                <div id="verse-lines-container" class="verse-lines" style="font-size: 1.05rem;"></div>
+                <div id="verse-lines-container" class="verse-lines"></div>
 
                 <div id="display-meeting-memo" class="meeting-memo-box" style="display: none;"></div>
 
@@ -1357,6 +1421,29 @@
             { id: 14, category: "60구절", title: "새로운 삶 : 말씀", reference: "여호수아 1:8", verse: "이 율법책을 네 입에서 떠나지 말게 하며\n주야로 그것을 묵상하여\n그 안에 기록된 대로 다 지켜 행하라\n그리하면 네 길이 평탄하게 될 것이며\n네가 형통하리라" },
             { id: 15, category: "60구절", title: "새로운 삶 : 기도", reference: "빌립보서 4:6-7", verse: "아무 것도 염려하지 말고\n다만 모든 일에 기도와 간구로,\n너희 구할 것을 감사함으로 하나님께 아뢰라\n그리하면 모든 지각에 뛰어난 하나님의 평강이\n너희 마음과 생각을 지키시리라" }
         ];
+
+        /* =========================================================
+           어르신용 글자 크기 선택 (보통 / 크게 / 아주크게) - 기기 자동 기억
+           ========================================================= */
+        function setGlobalFontScale(scale, btnEl) {
+            document.documentElement.style.setProperty('--verse-scale', String(scale));
+            document.querySelectorAll('.font-size-btn').forEach(b => {
+                b.classList.toggle('active', Number(b.dataset.scale) === Number(scale));
+            });
+            try {
+                localStorage.setItem('bbb_font_scale', String(scale));
+            } catch (e) {}
+            syncHeaderHeight();
+        }
+
+        function initFontScale() {
+            let saved = 1;
+            try {
+                const v = parseFloat(localStorage.getItem('bbb_font_scale'));
+                if ([1, 1.22, 1.45].includes(v)) saved = v;
+            } catch (e) {}
+            setGlobalFontScale(saved);
+        }
 
         let currentData = [...rawData];
         let carouselMode = 'horizontal';
@@ -2194,7 +2281,6 @@
         /* =========================================================
            📖 오늘의 모임 (다중 선택 / 순서 조정 / 공유 링크)
            ========================================================= */
-        let currentFontSize = 1.05;
         let highlightedLineIndex = 0;
         let currentFilterCat = 'all';
         let draftVerses = [];
@@ -2527,11 +2613,6 @@
             setHighlight(highlightedLineIndex + step);
         }
 
-        function changeFontSize(delta) {
-            currentFontSize = Math.max(0.85, Math.min(1.6, currentFontSize + delta));
-            document.getElementById('verse-lines-container').style.fontSize = currentFontSize + 'rem';
-        }
-
         function completeReading() {
             const banner = document.getElementById('complete-banner');
             banner.style.display = 'block';
@@ -2559,6 +2640,7 @@
             });
         }
 
+        initFontScale();
         renderCarousel();
         initMeetingData();
         openMeetingView();
