@@ -30,6 +30,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -1018,12 +1019,98 @@
         }
 
         @media (max-width: 768px) {
-            header { flex-direction: column; align-items: flex-start; padding: 12px 16px; }
-            #meeting-view { top: 105px; padding: 14px 54px; }
-            .verse-card { width: 230px; height: 320px; padding: 18px; }
-            .side-nav-btn { width: 42px; height: 42px; font-size: 1.1rem; }
-            .side-nav-btn.prev { left: 8px; }
-            .side-nav-btn.next { right: 8px; }
+            header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            h1 {
+                font-size: 1.02rem;
+                text-align: center;
+            }
+            .header-right {
+                justify-content: center;
+                gap: 6px;
+            }
+            .filters {
+                gap: 5px;
+                max-width: 100%;
+            }
+            .filter-btn {
+                padding: 5px 10px;
+                font-size: 0.78rem;
+            }
+            .meeting-btn {
+                padding: 5px 11px;
+                font-size: 0.78rem;
+            }
+            .spin-btn {
+                padding: 6px 12px;
+                font-size: 0.78rem;
+            }
+            #meeting-view {
+                top: var(--header-h, 118px);
+                padding: 12px 12px 28px 12px;
+            }
+            .meeting-card {
+                padding: 16px 14px;
+                border-radius: 14px;
+            }
+            .meeting-title-row h2 {
+                font-size: 1.05rem;
+            }
+            .reader-ref {
+                font-size: 1.15rem;
+            }
+            .verse-line {
+                padding: 11px 13px;
+                font-size: 1rem;
+                line-height: 1.65;
+            }
+            .select-list-grid {
+                grid-template-columns: 1fr;
+                max-height: 210px;
+            }
+            .verse-card {
+                width: 220px;
+                height: 310px;
+                padding: 18px;
+            }
+            .side-nav-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+                background: rgba(22, 27, 34, 0.92);
+            }
+            .side-nav-btn.prev { left: 6px; }
+            .side-nav-btn.next { right: 6px; }
+            body.meeting-open .side-nav-btn {
+                display: none !important;
+            }
+            footer {
+                padding: 12px 14px;
+            }
+            .guide-text {
+                font-size: 0.74rem;
+            }
+            .sp-stage {
+                height: 300px;
+            }
+            .sp-card {
+                width: 168px;
+                height: 238px;
+                padding: 13px;
+            }
+            .sp-card .b {
+                font-size: 0.78rem;
+            }
+            .wc-result-box {
+                padding: 14px;
+            }
+            .wc-card-img {
+                max-height: 46vh;
+            }
         }
     </style>
 </head>
@@ -1247,7 +1334,9 @@
             carousel.innerHTML = '';
             const total = currentData.length;
             const theta = 360 / total;
-            const dynamicRadius = Math.max(430, Math.round((305 * total) / (2 * Math.PI)));
+            const isMobile = window.innerWidth <= 768;
+            const cardSpace = isMobile ? 235 : 305;
+            const dynamicRadius = Math.max(isMobile ? 280 : 430, Math.round((cardSpace * total) / (2 * Math.PI)));
 
             currentData.forEach((item, index) => {
                 const card = document.createElement('div');
@@ -1899,8 +1988,18 @@
         let savedMemo = "";
         let activeMeetingIdx = 0;
 
+        function syncHeaderHeight() {
+            const header = document.querySelector('header');
+            if (header) {
+                document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+            }
+        }
+        window.addEventListener('resize', syncHeaderHeight);
+
         function openMeetingView() {
             if (isSpinning) return;
+            syncHeaderHeight();
+            document.body.classList.add('meeting-open');
             document.getElementById('meeting-view').style.display = 'block';
             document.getElementById('meeting-menu-btn').classList.add('active');
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -1908,6 +2007,7 @@
         }
 
         function closeMeetingView() {
+            document.body.classList.remove('meeting-open');
             document.getElementById('meeting-view').style.display = 'none';
             document.getElementById('meeting-menu-btn').classList.remove('active');
             document.getElementById('prev-btn').disabled = false;
